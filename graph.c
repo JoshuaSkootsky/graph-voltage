@@ -171,9 +171,6 @@ int main()
         }
     }
     finish = clock();
-    // store time in sec as a double
-    double time_create = (double) (finish - start) / CLOCKS_PER_SEC; 
-    printf("Time = %f \n", time_create);
     
 
     // print the adjacency list representation of the above graph
@@ -188,7 +185,13 @@ int main()
     int num_edges = -1; // in case of failure
     num_edges = countEdges(graph)/2; // undirected edges
     printf("Adjacency list contains %d unique edges \n", num_edges);
+    
+    // store time in sec as a double
+    double time_create = (double) (finish - start) / CLOCKS_PER_SEC; 
+    printf("Time = %f \n", time_create);
+
     // tear down the graph
     free(graph);    
+    
     return 0;
 }
