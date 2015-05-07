@@ -121,6 +121,7 @@ int countEdges(struct Graph * graph) {
 }
 
 // return 0 if graph is empty, else return 1
+// the efficiency of this depends on the linked-list formulation graph
 int isFull(struct Graph* graph, int node_a, int node_b) {
     struct AdjListNode *pCrawl = graph->array[node_a].head;
     while (pCrawl) {
@@ -132,7 +133,7 @@ int isFull(struct Graph* graph, int node_a, int node_b) {
     return 0;
 }
 
-// Driver program to test above functions
+// BEGIN NETWORKING
 int main()
 {
     // create the graph given in above fugure
@@ -152,7 +153,6 @@ int main()
     struct Graph* graph = createGraph(n);
    
 
-    // still no way to prevent doubles 
     int node_a, node_b;
     int i;
     for (i = 0; i < edges; i++) {
@@ -160,10 +160,10 @@ int main()
         node_a = floor (n * random64());
         node_b = floor (n * random64());
         if (node_a == node_b) {
-            goto SELECT;
+            goto SELECT; // reject doubles
         }
         if (isFull(graph, node_a, node_b)) {
-            goto SELECT;
+            goto SELECT; //reject repeated references
         }
         else {
             // it is okay to add a new node!
