@@ -120,6 +120,18 @@ int countEdges(struct Graph * graph) {
     return total_edges;
 }
 
+// return 0 if graph is empty, else return 1
+int isFull(struct Graph* graph, int node_a, int node_b) {
+    struct AdjListNode *pCrawl = graph->array[node_a].head;
+    while (pCrawl) {
+        if(pCrawl->dest == node_b) {
+            return 1;
+        }
+        pCrawl = pCrawl->next;
+    }
+    return 0;
+}
+
 // Driver program to test above functions
 int main()
 {
@@ -150,8 +162,13 @@ int main()
         if (node_a == node_b) {
             goto SELECT;
         }
-        
-        addEdge(graph, node_a, node_b); //an undirected edge
+        if (isFull(graph, node_a, node_b)) {
+            goto SELECT;
+        }
+        else {
+            // it is okay to add a new node!
+            addEdge(graph, node_a, node_b); //an undirected edge
+        }
     }
     finish = clock();
     // store time in sec as a double
