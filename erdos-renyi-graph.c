@@ -174,7 +174,7 @@ struct LaplaceNode
 
 struct AdjLaplaceList
 {
-    LaplaceNode *head;
+    struct LaplaceNode *head;
 };
 
 
@@ -195,6 +195,12 @@ int main()
     int edges;
     printf("How many edges? \n");
     scanf("%d", &edges);
+    int seed;
+    printf("Random seed integer \n");
+    scanf("%d", &seed);
+    
+    seed_random64(seed);
+
 
     // start timer
     start = clock();

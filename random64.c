@@ -27,3 +27,7 @@ double random64() {
     return (double) rand64/ MAXINT_U64;
     // result should be between 0 and 1
 }
+
+void seed_random64(int seed) {
+    rand64 = seed;
+}
