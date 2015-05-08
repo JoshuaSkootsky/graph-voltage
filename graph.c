@@ -11,6 +11,7 @@
 struct AdjListNode
 {
     int val;
+    int rep; // represents value in adjacency list
     struct AdjListNode* next;
 };
  
@@ -33,6 +34,7 @@ struct AdjListNode* newAdjListNode(int value)
 {
     struct AdjListNode* newNode = (struct AdjListNode*) malloc(sizeof(struct AdjListNode));
     newNode->val = value;
+    newNode->rep = 1; // Adjacency list nodes = 1
     newNode->next = NULL;
     return newNode;
 }
