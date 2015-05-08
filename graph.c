@@ -10,7 +10,7 @@
 // A structure to represent an adjacency list node
 struct AdjListNode
 {
-    int dest;
+    int val;
     struct AdjListNode* next;
 };
  
@@ -32,7 +32,7 @@ struct Graph
 struct AdjListNode* newAdjListNode(int value)
 {
     struct AdjListNode* newNode = (struct AdjListNode*) malloc(sizeof(struct AdjListNode));
-    newNode->dest = value;
+    newNode->val = value;
     newNode->next = NULL;
     return newNode;
 }
@@ -57,13 +57,13 @@ struct Graph* createGraph(int V)
 // Adds an edge to an undirected graph
 void addEdge(struct Graph* graph, int src, int val)
 {
-    // Add an edge from src to dest.  A new node is added to the adjacency
+    // Add an edge from src to val.  A new node is added to the adjacency
     // list of src.  The node is added at the begining
     struct AdjListNode* newNode = newAdjListNode(val);
     newNode->next = graph->array[src].head;
     graph->array[src].head = newNode;
  
-    // Since graph is undirected, add an edge from dest to src also
+    // Since graph is undirected, add an edge from val to src also
     newNode = newAdjListNode(src);
     newNode->next = graph->array[val].head;
     graph->array[val].head = newNode;
@@ -75,12 +75,12 @@ void pretty_printGraph(struct Graph* graph)
     int v;
     for (v = 0; v < graph->V; v++)
     {
-        struct AdjListNode* pCrawl = graph->array[v].head; //pCrawl starts as head
+        struct AdjListNode* nodeSweep = graph->array[v].head; //nodeSweep starts as head
         printf("\n Adjacency list of vertex %d\n head ", v);
-        while (pCrawl)
+        while (nodeSweep)
         {
-            printf("-> %d", pCrawl->dest); // dest = current node value
-            pCrawl = pCrawl->next;         // next = next
+            printf("-> %d", nodeSweep->val); // val = current node value
+            nodeSweep = nodeSweep->next;         // next = next
         }
         printf("\n");
     }
@@ -91,11 +91,26 @@ void printMatrix (struct Graph* graph) {
     int v;
     for (v = 0; v < graph->V; v++) {
         int count = 0;
-        struct AdjListNode *pCrawl = graph->array[v].head;
+        struct AdjListNode *nodeSweep = graph->array[v].head;
         printf("\n Node %d: ", v);
-        while (pCrawl) {
-            printf("%d ", pCrawl->dest);
-            pCrawl = pCrawl->next;
+        while (nodeSweep) {
+            printf("%d ", nodeSweep->val);
+            nodeSweep = nodeSweep->next;
+            count++;
+        }
+    printf(" count = %d ", count);
+    }
+}
+
+void printEndMatrix(struct Graph *graph) {
+    int v;
+    for (v = (graph->V - 30); v < graph->V; v++) {
+        int count = 0;
+        struct AdjListNode *nodeSweep = graph->array[v].head;
+                printf("\n Node %d: ", v);
+        while (nodeSweep) {
+            printf("%d ", nodeSweep->val);
+            nodeSweep = nodeSweep->next;
             count++;
         }
     printf(" count = %d ", count);
@@ -111,10 +126,10 @@ int countEdges(struct Graph * graph) {
     int v;
     int total_edges = 0;
     for (v = 0; v < graph->V; v++) {
-        struct AdjListNode *pCrawl = graph->array[v].head;
-        while (pCrawl) {
+        struct AdjListNode *nodeSweep = graph->array[v].head;
+        while (nodeSweep) {
             total_edges++;
-            pCrawl = pCrawl->next;
+            nodeSweep = nodeSweep->next;
         }
     } 
     return total_edges;
@@ -123,12 +138,12 @@ int countEdges(struct Graph * graph) {
 // return 0 if graph is empty, else return 1
 // the efficiency of this depends on the linked-list formulation graph
 int isFull(struct Graph* graph, int node_a, int node_b) {
-    struct AdjListNode *pCrawl = graph->array[node_a].head;
-    while (pCrawl) {
-        if(pCrawl->dest == node_b) {
+    struct AdjListNode *nodeSweep = graph->array[node_a].head;
+    while (nodeSweep) {
+        if(nodeSweep->val == node_b) {
             return 1;
         }
-        pCrawl = pCrawl->next;
+        nodeSweep = nodeSweep->next;
     }
     return 0;
 }
@@ -175,7 +190,7 @@ int main()
 
     // print the adjacency list representation of the above graph
     //pretty_printGraph(graph);
-    printMatrix(graph);
+    printEndMatrix(graph);
     
     int size = -1;
     size = countNodes(graph); 
