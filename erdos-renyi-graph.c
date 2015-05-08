@@ -11,7 +11,6 @@
 struct AdjListNode
 {
     int val;
-    int rep; // represents value in adjacency list
     struct AdjListNode* next;
 };
  
@@ -34,7 +33,6 @@ struct AdjListNode* newAdjListNode(int value)
 {
     struct AdjListNode* newNode = (struct AdjListNode*) malloc(sizeof(struct AdjListNode));
     newNode->val = value;
-    newNode->rep = 1; // Adjacency list nodes = 1
     newNode->next = NULL;
     return newNode;
 }
@@ -57,18 +55,17 @@ struct Graph* createGraph(int V)
 }
  
 // Adds an edge to an undirected graph
-void addEdge(struct Graph* graph, int src, int val)
+void addEdgeAdjList(struct Graph* graph, int node_a, int node_b)
 {
-    // Add an edge from src to val.  A new node is added to the adjacency
-    // list of src.  The node is added at the begining
-    struct AdjListNode* newNode = newAdjListNode(val);
-    newNode->next = graph->array[src].head;
-    graph->array[src].head = newNode;
+    // Add node_b to node_a. The node is added at the begining of the linked list
+    struct AdjListNode* newNode = newAdjListNode(node_b);
+    newNode->next = graph->array[node_a].head;
+    graph->array[node_a].head = newNode;
  
-    // Since graph is undirected, add an edge from val to src also
-    newNode = newAdjListNode(src);
-    newNode->next = graph->array[val].head;
-    graph->array[val].head = newNode;
+    // add node_a to node_b as well (undirected graph)
+    newNode = newAdjListNode(node_a);
+    newNode->next = graph->array[node_b].head;
+    graph->array[node_b].head = newNode;
 }
  
 // A utility function to print the adjacenncy list representation of graph
@@ -77,12 +74,12 @@ void pretty_printGraph(struct Graph* graph)
     int v;
     for (v = 0; v < graph->V; v++)
     {
-        struct AdjListNode* nodeSweep = graph->array[v].head; //nodeSweep starts as head
+        struct AdjListNode* sweeperNode = graph->array[v].head; //sweeperNode starts as head
         printf("\n Adjacency list of vertex %d\n head ", v);
-        while (nodeSweep)
+        while (sweeperNode)
         {
-            printf("-> %d", nodeSweep->val); // val = current node value
-            nodeSweep = nodeSweep->next;         // next = next
+            printf("-> %d", sweeperNode->val); // val = current node value
+            sweeperNode = sweeperNode->next;         // next = next
         }
         printf("\n");
     }
@@ -93,11 +90,11 @@ void printMatrix (struct Graph* graph) {
     int v;
     for (v = 0; v < graph->V; v++) {
         int count = 0;
-        struct AdjListNode *nodeSweep = graph->array[v].head;
+        struct AdjListNode *sweeperNode = graph->array[v].head;
         printf("\n Node %d: ", v);
-        while (nodeSweep) {
-            printf("%d ", nodeSweep->val);
-            nodeSweep = nodeSweep->next;
+        while (sweeperNode) {
+            printf("%d ", sweeperNode->val);
+            sweeperNode = sweeperNode->next;
             count++;
         }
     printf(" count = %d ", count);
@@ -108,11 +105,11 @@ void printEndMatrix(struct Graph *graph) {
     int v;
     for (v = (graph->V - 30); v < graph->V; v++) {
         int count = 0;
-        struct AdjListNode *nodeSweep = graph->array[v].head;
+        struct AdjListNode *sweeperNode = graph->array[v].head;
                 printf("\n Node %d: ", v);
-        while (nodeSweep) {
-            printf("%d ", nodeSweep->val);
-            nodeSweep = nodeSweep->next;
+        while (sweeperNode) {
+            printf("%d ", sweeperNode->val);
+            sweeperNode = sweeperNode->next;
             count++;
         }
     printf(" count = %d ", count);
@@ -128,10 +125,10 @@ int countEdges(struct Graph * graph) {
     int v;
     int total_edges = 0;
     for (v = 0; v < graph->V; v++) {
-        struct AdjListNode *nodeSweep = graph->array[v].head;
-        while (nodeSweep) {
+        struct AdjListNode *sweeperNode = graph->array[v].head;
+        while (sweeperNode) {
             total_edges++;
-            nodeSweep = nodeSweep->next;
+            sweeperNode = sweeperNode->next;
         }
     } 
     return total_edges;
@@ -140,12 +137,12 @@ int countEdges(struct Graph * graph) {
 // return 0 if graph is empty, else return 1
 // the efficiency of this depends on the linked-list formulation graph
 int isFull(struct Graph* graph, int node_a, int node_b) {
-    struct AdjListNode *nodeSweep = graph->array[node_a].head;
-    while (nodeSweep) {
-        if(nodeSweep->val == node_b) {
+    struct AdjListNode *sweeperNode = graph->array[node_a].head;
+    while (sweeperNode) {
+        if(sweeperNode->val == node_b) {
             return 1;
         }
-        nodeSweep = nodeSweep->next;
+        sweeperNode = sweeperNode->next;
     }
     return 0;
 }
@@ -184,7 +181,7 @@ int main()
         }
         else {
             // it is okay to add a new node!
-            addEdge(graph, node_a, node_b); //an undirected edge
+            addEdgeAdjList(graph, node_a, node_b); //an undirected edge
         }
     }
     finish = clock();
