@@ -91,7 +91,7 @@ void printMatrix (struct Graph* graph) {
     for (v = 0; v < graph->V; v++) {
         int count = 0;
         struct AdjListNode *sweeperNode = graph->array[v].head;
-        printf("\n Node %d: ", v);
+        printf("\nNode %d: ", v);
         while (sweeperNode) {
             printf("%d ", sweeperNode->val);
             sweeperNode = sweeperNode->next;
@@ -102,8 +102,12 @@ void printMatrix (struct Graph* graph) {
 }
 
 void printEndMatrix(struct Graph *graph) {
-    int v;
-    for (v = (graph->V - 30); v < graph->V; v++) {
+    int v  = 0;
+    // print last 30 rows if there are more than 30 nodes
+    if (graph->V > 30) {
+        v  = graph->V - 30;
+    }
+    for( ; v < graph->V; v++) {
         int count = 0;
         struct AdjListNode *sweeperNode = graph->array[v].head;
                 printf("\n Node %d: ", v);
@@ -156,6 +160,9 @@ void destroyGraph(struct Graph *graph) {
     free(graph);
 }
 
+// make a linked-list representation of a Laplacian matrix
+// L(G) = degree matrix - adjacency matrix
+
 // BEGIN NETWORKING
 int main()
 {
@@ -163,10 +170,10 @@ int main()
     clock_t start, finish;
     
     int n;
-    printf("How many vertices in the graph?");
+    printf("How many vertices in the graph? \n");
     scanf("%d",&n);
     int edges;
-    printf("How many edges?");
+    printf("How many edges? \n");
     scanf("%d", &edges);
 
     // start timer
