@@ -147,6 +147,15 @@ int isFull(struct Graph* graph, int node_a, int node_b) {
     return 0;
 }
 
+void destroyGraph(struct Graph *graph) {
+    int i;
+    for (i = 0; i < graph->V; i++) {
+        free(graph->array[i].head);
+    }
+    // finally
+    free(graph);
+}
+
 // BEGIN NETWORKING
 int main()
 {
@@ -166,18 +175,18 @@ int main()
     // make graph with n nodes
     struct Graph* graph = createGraph(n);
    
-
     int node_a, node_b;
     int i;
+    // choose edges number of edges, rejecting parallel edges and loops
     for (i = 0; i < edges; i++) {
         SELECT:
         node_a = floor (n * random64());
         node_b = floor (n * random64());
         if (node_a == node_b) {
-            goto SELECT; // reject doubles
+            goto SELECT; // reject loops
         }
         if (isFull(graph, node_a, node_b)) {
-            goto SELECT; //reject repeated references
+            goto SELECT; //reject parallel edges
         }
         else {
             // it is okay to add a new node!
@@ -205,7 +214,7 @@ int main()
     printf("Time = %f \n", time_create);
 
     // tear down the graph
-    free(graph);    
+    destroyGraph(graph);  
     
     return 0;
 }
