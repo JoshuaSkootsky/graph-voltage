@@ -55,8 +55,7 @@ struct Graph* createGraph(int V)
 }
  
 // Adds an edge to an undirected graph
-void addEdgeAdjList(struct Graph* graph, int node_a, int node_b)
-{
+void addEdgeAdjList(struct Graph* graph, int node_a, int node_b) {
     // Add node_b to node_a. The node is added at the begining of the linked list
     struct AdjListNode* newNode = newAdjListNode(node_b);
     newNode->next = graph->array[node_a].head;
@@ -69,8 +68,7 @@ void addEdgeAdjList(struct Graph* graph, int node_a, int node_b)
 }
  
 // A utility function to print the adjacenncy list representation of graph
-void pretty_printGraph(struct Graph* graph)
-{
+void pretty_printGraph(struct Graph* graph) {
     int v;
     for (v = 0; v < graph->V; v++)
     {
@@ -138,13 +136,13 @@ int countEdges(struct Graph * graph) {
     return total_edges;
 }
 
-// return 0 if graph is empty, else return 1
+// return 0 if graph does not contain node_a, node_b pair, else return 1
 // the efficiency of this depends on the linked-list formulation graph
 int isFull(struct Graph* graph, int node_a, int node_b) {
     struct AdjListNode *sweeperNode = graph->array[node_a].head;
     while (sweeperNode) {
         if(sweeperNode->val == node_b) {
-            return 1;
+            return 1; // found a pair match
         }
         sweeperNode = sweeperNode->next;
     }
@@ -161,12 +159,34 @@ void destroyGraph(struct Graph *graph) {
 }
 
 // make a linked-list representation of a Laplacian matrix
-// L(G) = degree matrix - adjacency matrix
+// L(G) = degree matrix - adjacency matrix if 
+// L_i,j = deg(v_i) if i=j
+//       = -1 if i != j and v_i adjacent to v_j 
+//       = 0 otherwise
+// represent the zeros as nothing in the adjacency list
+// node needs two fields j, and val {-1, deg(v_i}
+struct LaplaceNode
+{
+    int j;
+    int val;
+    struct LaplaceNode *next;    
+};
 
-// BEGIN NETWORKING
+struct AdjLaplaceList
+{
+    LaplaceNode *head;
+};
+
+
+
+
+
+// Create an adjacency list representation of a network
+// This is justified if the number of edges is several orders of magnitude
+// less than the number of nodes squares
+// Will scale according to the number of edges
 int main()
 {
-    // create the graph given in above fugure
     clock_t start, finish;
     
     int n;
