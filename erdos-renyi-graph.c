@@ -198,42 +198,35 @@ int main()
     int seed;
     printf("Random seed integer \n");
     scanf("%d", &seed);
-    
     seed_random64(seed);
-
 
     // start timer
     start = clock();
-
     // make graph with n nodes
     struct Graph* graph = createGraph(n);
    
+    // fill the graph with edges between nodes
     int node_a, node_b;
-    int i;
-    // choose edges number of edges, rejecting parallel edges and loops
-    for (i = 0; i < edges; i++) {
-        SELECT:
-        node_a = floor (n * random64());
+    int edge_count = 0;
+    while(edge_count < edges) {
+        node_a = floor (n * random64()); // make new nodes in the range of nodes
         node_b = floor (n * random64());
-        if (node_a == node_b) {
-            goto SELECT; // reject loops
-        }
-        if (isFull(graph, node_a, node_b)) {
-            goto SELECT; //reject parallel edges
-        }
-        else {
-            // it is okay to add a new node!
-            addEdgeAdjList(graph, node_a, node_b); //an undirected edge
-        }
+        // reject parallel edges (more than one edge between two nodes)
+        //  and loops (edges from a node to itself)
+        if (!isFull(graph, node_a, node_b) && node_a != node_b ) {
+            addEdgeAdjList(graph, node_a, node_b);
+            edge_count++;
+            }
+        // else repeat while loop, since edge_count is not incremented
     }
+    
     finish = clock();
     
-
     // print the adjacency list representation of the above graph
-    //pretty_printGraph(graph);
     printEndMatrix(graph);
     
-    int size = -1;
+    // count nodes
+    int size = 0;
     size = countNodes(graph); 
     printf("Made an adjacency list with %d nodes \n", size);
 
@@ -242,7 +235,7 @@ int main()
     num_edges = countEdges(graph)/2; // undirected edges
     printf("Adjacency list contains %d unique edges \n", num_edges);
     
-    // store time in sec as a double
+    // print out time
     double time_create = (double) (finish - start) / CLOCKS_PER_SEC; 
     printf("Time = %f \n", time_create);
 
