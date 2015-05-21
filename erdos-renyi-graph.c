@@ -178,8 +178,29 @@ struct AdjLaplaceList
 };
 
 
+// A utility function that creates a voltage nodes
+struct VoltageList *createVoltageList(int n)
+{
+    struct VoltageList *list = (struct VoltageList*) malloc(n * sizeof(struct VoltageNode) + sizeof(struct VoltageList));
+    list->size = n;
+
+    // Initialize each resistor
+    int i;
+    for (i = 0; i < list.size; ++i) {
+        list[i]->oldVoltage = NULL;
+        list[i]->newVoltage = NULL;
+        list[i]->resistance = NULL;
+        list[i]->condudtance = NULL;
+    }
+     return list;
+}
+
+// initialize the Voltage List
+
+void initializeVoltageList() {
 
 
+}
 
 // Create an adjacency list representation of a network
 // This is justified if the number of edges is several orders of magnitude
