@@ -61,7 +61,7 @@ void addEdgeAdjList(struct Graph* graph, int node_a, int node_b) {
     newNode->next = graph->array[node_a].head;
     graph->array[node_a].head = newNode;
  
-    // add node_a to node_b as well (undirected graph)
+    // add node_a to node_b as well, since this an undirected graph
     newNode = newAdjListNode(node_a);
     newNode->next = graph->array[node_b].head;
     graph->array[node_b].head = newNode;
