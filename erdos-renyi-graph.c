@@ -6,6 +6,7 @@
 #include <time.h>
 
 #include "random64.h"
+#include "voltage.h"
  
 // A structure to represent an adjacency list node
 struct AdjListNode
@@ -38,8 +39,7 @@ struct AdjListNode* newAdjListNode(int value)
 }
  
 // A utility function that creates a graph of V vertices
-struct Graph* createGraph(int V)
-{
+struct Graph* createGraph(int V) {
     struct Graph* graph = (struct Graph*) malloc(sizeof(struct Graph));
     graph->V = V;
  
@@ -48,7 +48,7 @@ struct Graph* createGraph(int V)
  
      // Initialize each adjacency list as empty by making head as NULL
     int i;
-    for (i = 0; i < V; ++i) {
+    for (i = 0; i < V; i++) {
         graph->array[i].head = NULL;
     }
     return graph;
@@ -158,49 +158,7 @@ void destroyGraph(struct Graph *graph) {
     free(graph);
 }
 
-// make a linked-list representation of a Laplacian matrix
-// L(G) = degree matrix - adjacency matrix if 
-// L_i,j = deg(v_i) if i=j
-//       = -1 if i != j and v_i adjacent to v_j 
-//       = 0 otherwise
-// represent the zeros as nothing in the adjacency list
-// node needs two fields j, and val {-1, deg(v_i}
-struct LaplaceNode
-{
-    int j;
-    int val;
-    struct LaplaceNode *next;    
-};
 
-struct AdjLaplaceList
-{
-    struct LaplaceNode *head;
-};
-
-
-// A utility function that creates a voltage nodes
-struct VoltageList *createVoltageList(int n)
-{
-    struct VoltageList *list = (struct VoltageList*) malloc(n * sizeof(struct VoltageNode) + sizeof(struct VoltageList));
-    list->size = n;
-
-    // Initialize each resistor
-    int i;
-    for (i = 0; i < list.size; ++i) {
-        list[i]->oldVoltage = NULL;
-        list[i]->newVoltage = NULL;
-        list[i]->resistance = NULL;
-        list[i]->condudtance = NULL;
-    }
-     return list;
-}
-
-// initialize the Voltage List
-
-void initializeVoltageList() {
-
-
-}
 
 // Create an adjacency list representation of a network
 // This is justified if the number of edges is several orders of magnitude
