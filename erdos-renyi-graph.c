@@ -356,10 +356,6 @@ int main()
     int source = 8;
     nodesVoltages->array[source].head->voltageOld = 1;
     nodesVoltages->array[sink].head->voltageOld = 0;
-    
-	
-	
-    printVoltages(nodesVoltages);
 	
 	// start timer
 	start = clock();
