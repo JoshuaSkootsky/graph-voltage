@@ -6,8 +6,75 @@
 #include <time.h>
 
 #include "random64.h"
-#include "voltage.h"
  
+ 
+//////
+// Voltage List
+/////
+ 
+// a single node in the network
+struct VoltNode
+{
+    double voltageNew;
+    double voltageOld;
+	double conductance;
+};
+
+// structure represents a list of volt nodes
+struct VoltList
+{
+	struct VoltNode *head; // pointer to the head
+};
+
+struct NodesVoltages
+{
+	int n;
+	struct VoltList *array;
+};
+
+
+// utility function for new volt nodes
+// initializes to default value
+struct VoltNode *newVoltNode(double initVoltage, double conductance) {
+	struct VoltNode *newNode = (struct VoltNode *) malloc(sizeof(struct VoltNode));
+	newNode->voltageNew = initVoltage;
+	newNode->voltageOld = initVoltage;
+	newNode->conductance = conductance;
+	return newNode;
+};
+
+// utility function creates a list of nodes and voltages
+struct NodesVoltages *createNodesVoltages(int n) {
+	struct NodesVoltages *nodesVoltages = (struct NodesVoltages*) malloc(sizeof(struct NodesVoltages));
+	nodesVoltages->n = n;
+	
+	// create a VoltList array of pointers to VoltNodes within the container struct
+	nodesVoltages->array = (struct VoltList*) malloc(n * sizeof(struct VoltList));
+	
+	//initialize all fields to NULL
+	// aha - you don't have voltage nodes here - FIX THIS
+	/* FIX */
+	int i;
+	for (i = 0; i < n; i++) {
+		nodesVoltages->array[i].head = NULL;
+	}
+	return nodesVoltages;
+}
+
+// function to initialize a node
+void initNode(struct NodesVoltages* nodesVoltages, int nodeNum, double voltage, double conductance) {
+	struct VoltNode* voltNode = newVoltNode(voltage, conductance); //pointer to new voltage node
+	// set the fields
+	voltNode->voltageOld = voltage;
+	// place (pointer to) new node in the array of voltage nodes
+	nodesVoltages->array[nodeNum].head = voltNode;
+}
+ 
+
+
+//////
+// Adjacency List
+/////
 // A structure to represent an adjacency list node
 struct AdjListNode
 {
@@ -158,6 +225,49 @@ void destroyGraph(struct Graph *graph) {
     free(graph);
 }
 
+
+
+///
+/// Voltage list and Adjacency List interface
+///
+// function to calculate newVoltage for a node
+void setNewVoltage(struct Graph* graph, struct NodesVoltages* nodesVoltages, int nodeNum) {
+	double sum = nodesVoltages->array[nodeNum].head->voltageOld; // add own value to the new voltage sum
+	int count = 1; // start count with 1
+	
+	// access adjacency list at nodeNum to get neighbors
+	struct AdjListNode *sweeperNode = graph->array[nodeNum].head;
+    while (sweeperNode) {
+		int neighborNum = sweeperNode->val;
+    	sweeperNode = sweeperNode->next;	
+		// use neighbor as the number of the node, access nodesVoltages with it
+		double neighborVoltage = nodesVoltages->array[neighborNum].head->voltageOld;
+		count++;
+		sum += neighborVoltage;
+    }
+	// set new voltage using nodeNum
+	double average = (double) sum/count;
+	nodesVoltages->array[nodeNum].head->voltageNew = average;
+}
+
+void calculateAllNewVoltages(struct Graph* graph, struct NodesVoltages* nodesVoltages) {
+	int i;
+	for (i = 0; i< graph->V; i++) {
+		setNewVoltage(graph, nodesVoltages, i);
+	}
+}
+
+//function to update a node
+void updateNodeOldVoltage(struct NodesVoltages* nodesVoltages, int nodeNum) {
+	nodesVoltages->array[nodeNum].head->voltageOld = nodesVoltages->array[nodeNum].head->voltageNew;
+}
+
+void globalNodeUpdate(struct NodesVoltages* nodesVoltages) {
+	int i;
+	for (i = 0; i< nodesVoltages->n; i++) {
+		updateNodeOldVoltage(nodesVoltages, i);
+	}
+}
 
 
 // Create an adjacency list representation of a network
