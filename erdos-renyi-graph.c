@@ -35,7 +35,7 @@ struct NodesVoltages
 
 // utility function for new volt nodes
 // initializes to default value
-struct VoltNode *newVoltNode(double initVoltage, double conductance) {
+struct VoltNode* newVoltNode(double initVoltage, double conductance) {
 	struct VoltNode *newNode = (struct VoltNode *) malloc(sizeof(struct VoltNode));
 	newNode->voltageNew = initVoltage;
 	newNode->voltageOld = initVoltage;
@@ -44,7 +44,7 @@ struct VoltNode *newVoltNode(double initVoltage, double conductance) {
 };
 
 // utility function creates a list of nodes and voltages
-struct NodesVoltages *createNodesVoltages(int n) {
+struct NodesVoltages* createNodesVoltages(int n) {
 	struct NodesVoltages *nodesVoltages = (struct NodesVoltages*) malloc(sizeof(struct NodesVoltages));
 	nodesVoltages->n = n;
 	
@@ -52,10 +52,8 @@ struct NodesVoltages *createNodesVoltages(int n) {
 	nodesVoltages->array = (struct VoltList*) malloc(n * sizeof(struct VoltList));
 	
 	//initialize all fields to NULL
-	// aha - you don't have voltage nodes here - FIX THIS
-	/* FIX */
 	int i;
-	for (i = 0; i < n; i++) {
+	for (i = 0; i < nodesVoltages->n; i++) {
 		nodesVoltages->array[i].head = NULL;
 	}
 	return nodesVoltages;
@@ -63,14 +61,17 @@ struct NodesVoltages *createNodesVoltages(int n) {
 
 // function to initialize a node
 void initNode(struct NodesVoltages* nodesVoltages, int nodeNum, double voltage, double conductance) {
-	struct VoltNode* voltNode = newVoltNode(voltage, conductance); //pointer to new voltage node
-	// set the fields
-	voltNode->voltageOld = voltage;
+	struct VoltNode* voltNode = newVoltNode(voltage, conductance);
 	// place (pointer to) new node in the array of voltage nodes
 	nodesVoltages->array[nodeNum].head = voltNode;
 }
- 
 
+void initAllNodes(struct NodesVoltages* nodesVoltages, double voltage, double conductance) {
+	int i;
+	for (i = 0; i< nodesVoltages->n; i++ ) {
+		initNode(nodesVoltages, i, voltage, conductance);
+	}
+}
 
 //////
 // Adjacency List
@@ -133,7 +134,7 @@ void addEdgeAdjList(struct Graph* graph, int node_a, int node_b) {
     newNode->next = graph->array[node_b].head;
     graph->array[node_b].head = newNode;
 }
- 
+
 // A utility function to print the adjacenncy list representation of graph
 void pretty_printGraph(struct Graph* graph) {
     int v;
@@ -269,7 +270,16 @@ void globalNodeUpdate(struct NodesVoltages* nodesVoltages) {
 	}
 }
 
-
+void printVoltages(struct NodesVoltages* nodesVoltages) {
+	int nodeNum = 0;
+	if (nodesVoltages->n > 30) {
+		nodeNum = nodesVoltages->n - 30;
+	}
+	for ( ; nodeNum < nodesVoltages->n; nodeNum++) {
+		double val = nodesVoltages->array[nodeNum].head->voltageOld;
+		printf("\nNode %d: Voltage %lf", nodeNum, val);
+	}
+}
 // Create an adjacency list representation of a network
 // This is justified if the number of edges is several orders of magnitude
 // less than the number of nodes squares
@@ -327,7 +337,54 @@ int main()
     // print out time
     double time_create = (double) (finish - start) / CLOCKS_PER_SEC; 
     printf("Time = %f \n", time_create);
-
+	
+	
+	////
+	/// Do Voltage calculations
+	///
+	
+	// initialize all nodes - n is the number of verticies
+	struct NodesVoltages* nodesVoltages = createNodesVoltages(n);	
+    initAllNodes(nodesVoltages, 0.5, 1);
+    
+    //
+    // Use graph adjacency list and voltage list together
+    //
+    
+    // arbitrary sources and sinks written in for testing purposes
+    int sink = 3;
+    int source = 8;
+    nodesVoltages->array[source].head->voltageOld = 1;
+    nodesVoltages->array[sink].head->voltageOld = 0;
+    
+	
+	
+    printVoltages(nodesVoltages);
+	
+	// start timer
+	start = clock();
+	
+    // iterate a certain number of times - 100 chosen for testing purposes
+    int i;
+	
+	for (i = 0; i < 10000; i++) {
+        // calculate using old values
+        calculateAllNewVoltages(graph, nodesVoltages);
+        // assign all members of voltage list their new values to old values
+        globalNodeUpdate(nodesVoltages);
+        // before the loop, assign the sink to 0 again and the source to 1
+        nodesVoltages->array[source].head->voltageOld = 1;
+        nodesVoltages->array[sink].head->voltageOld = 0; 
+    }
+	
+	
+	// end timer
+	finish = clock();
+	time_create = (double) (finish - start) / CLOCKS_PER_SEC; 
+	
+	printVoltages(nodesVoltages);
+	
+    printf("Time = %f for %d iterations\n", time_create, i);
     // tear down the graph
     destroyGraph(graph);  
     
