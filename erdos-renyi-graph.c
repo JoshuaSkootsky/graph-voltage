@@ -233,8 +233,10 @@ void destroyGraph(struct Graph *graph) {
 ///
 // function to calculate newVoltage for a node
 void setNewVoltage(struct Graph* graph, struct NodesVoltages* nodesVoltages, int nodeNum) {
-	double sum = nodesVoltages->array[nodeNum].head->voltageOld; // add own value to the new voltage sum
-	int count = 1; // start count with 1
+    // add own value to the new voltage sum
+	double sum = nodesVoltages->array[nodeNum].head->voltageOld; 
+	
+    int count = 1; // start count with 1
 	
 	// access adjacency list at nodeNum to get neighbors
 	struct AdjListNode *sweeperNode = graph->array[nodeNum].head;
@@ -279,6 +281,27 @@ void printVoltages(struct NodesVoltages* nodesVoltages) {
 		double val = nodesVoltages->array[nodeNum].head->voltageOld;
 		printf("\nNode %d: Voltage %lf", nodeNum, val);
 	}
+}
+
+void writeVoltages(struct NodesVoltages* nodesVoltages) {
+    int nodeNum = 0;
+
+    FILE* ff;
+    char fname[100];
+    
+    for (nodeNum = 0; nodeNum < nodesVoltages->n; nodeNum++) {
+        double val = nodesVoltages->array[nodeNum].head->voltageOld;
+        // write to file
+        scanf("%s", fname);
+        ff = fopen(fname,"w+"); // ff is a pointer
+        if(!ff) {
+            // 0 is false, so !ff will execute if ff is equal to zero
+            printf("\n Failed to write to file \n");
+            exit(1); // exit with error
+        }
+        fprintf(ff,"%lf\n", val);
+    }
+    printf("\nwritten to file: %s \n", fname);
 }
 // Create an adjacency list representation of a network
 // This is justified if the number of edges is several orders of magnitude
@@ -379,7 +402,7 @@ int main()
 	time_create = (double) (finish - start) / CLOCKS_PER_SEC; 
 	
 	printVoltages(nodesVoltages);
-	
+    writeVoltages(nodesVoltages);	
     printf("Time = %f for %d iterations\n", time_create, i);
     // tear down the graph
     destroyGraph(graph);  
