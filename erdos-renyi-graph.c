@@ -255,7 +255,7 @@ void setNewVoltage(struct Graph* graph, struct NodesVoltages* nodesVoltages, int
 
 void calculateAllNewVoltages(struct Graph* graph, struct NodesVoltages* nodesVoltages) {
 	int i;
-	for (i = 0; i< graph->V; i++) {
+	for (i = 0; i< ((int) graph->V/2 + 1); i++) {
 		setNewVoltage(graph, nodesVoltages, i);
 	}
 }
@@ -288,21 +288,64 @@ void writeVoltages(struct NodesVoltages* nodesVoltages) {
 
     FILE* ff;
     char fname[100];
-    
-    for (nodeNum = 0; nodeNum < nodesVoltages->n; nodeNum++) {
-        double val = nodesVoltages->array[nodeNum].head->voltageOld;
-        // write to file
-        scanf("%s", fname);
-        ff = fopen(fname,"w+"); // ff is a pointer
-        if(!ff) {
+    // prepare file to write
+    printf("What is the name of the output file? \n");
+    scanf("%s", fname);
+    ff = fopen(fname,"w+"); // ff is a pointer
+    if(!ff) {
             // 0 is false, so !ff will execute if ff is equal to zero
             printf("\n Failed to write to file \n");
             exit(1); // exit with error
-        }
-        fprintf(ff,"%lf\n", val);
     }
-    printf("\nwritten to file: %s \n", fname);
+    // loop and write to file
+    for (nodeNum = 0; nodeNum < nodesVoltages->n; nodeNum++) {
+        double val = nodesVoltages->array[nodeNum].head->voltageOld;
+        fprintf(ff,"%lf\n", val); 
+    }
+    printf("Written to file: %s \n", fname);
 }
+
+
+double convergence(struct Graph* graph, struct NodesVoltages* nodesVoltages, int source, int sink) {
+   
+    // check for current in = current out
+    // voltage near source should equal voltage near sink, because resistance = 1 
+    double source_voltage = nodesVoltages->array[source].head->voltageOld;
+   
+    
+    // access adjacency list at nodeNum to get neighbors
+    struct AdjListNode* sweeperNode = graph->array[source].head;
+    double sum = 0;
+    while (sweeperNode) {
+        // neighborNum represents the numbers of the neighbors of the source node
+        int neighborNum = sweeperNode->val;
+        sweeperNode = sweeperNode->next;
+        // use neighbor as the number of the node, access nodesVoltages with it
+        double neighborVoltage = nodesVoltages->array[neighborNum].head->voltageOld;
+        sum += source_voltage - neighborVoltage;
+    }
+    // take difference in voltage between source and sum of surrounding voltages
+    source_voltage = sum;
+	
+	// do this for the sink
+	double sink_voltage = nodesVoltages->array[sink].head->voltageOld;
+	// access adjacency list at nodeNum to get neighbors
+    sweeperNode = graph->array[sink].head;
+    sum = 0;
+    while (sweeperNode) {
+        // neighborNum represents the numbers of the neighbors of the source node
+        int neighborNum = sweeperNode->val;
+        sweeperNode = sweeperNode->next;
+        // use neighbor as the number of the node, access nodesVoltages with it
+        double neighborVoltage = nodesVoltages->array[neighborNum].head->voltageOld;
+        sum += neighborVoltage - sink_voltage;
+    }
+    sink_voltage = sum;
+    // take difference in voltage between source and sum of surrounding voltages
+
+    return source_voltage - sink_voltage;
+}
+
 // Create an adjacency list representation of a network
 // This is justified if the number of edges is several orders of magnitude
 // less than the number of nodes squares
@@ -345,7 +388,7 @@ int main()
     finish = clock();
     
     // print the adjacency list representation of the above graph
-    printEndMatrix(graph);
+    // printEndMatrix(graph);
     
     // count nodes
     int size = 0;
@@ -362,10 +405,7 @@ int main()
     printf("Time = %f \n", time_create);
 	
 	
-	////
 	/// Do Voltage calculations
-	///
-	
 	// initialize all nodes - n is the number of verticies
 	struct NodesVoltages* nodesVoltages = createNodesVoltages(n);	
     initAllNodes(nodesVoltages, 0.5, 1);
@@ -375,8 +415,8 @@ int main()
     //
     
     // arbitrary sources and sinks written in for testing purposes
-    int sink = 3;
-    int source = 8;
+    int sink = 1;
+    int source = 2;
     nodesVoltages->array[source].head->voltageOld = 1;
     nodesVoltages->array[sink].head->voltageOld = 0;
 	
@@ -385,8 +425,10 @@ int main()
 	
     // iterate a certain number of times - 100 chosen for testing purposes
     int i;
-	
-	for (i = 0; i < 10000; i++) {
+    int max_iter;
+    printf("How many iterations for voltage calculation? Integer: \n");
+    scanf("%d", &max_iter);
+	for (i = 0; i < max_iter; i++) {
         // calculate using old values
         calculateAllNewVoltages(graph, nodesVoltages);
         // assign all members of voltage list their new values to old values
@@ -394,6 +436,7 @@ int main()
         // before the loop, assign the sink to 0 again and the source to 1
         nodesVoltages->array[source].head->voltageOld = 1;
         nodesVoltages->array[sink].head->voltageOld = 0; 
+
     }
 	
 	
@@ -401,9 +444,13 @@ int main()
 	finish = clock();
 	time_create = (double) (finish - start) / CLOCKS_PER_SEC; 
 	
-	printVoltages(nodesVoltages);
+	// printVoltages(nodesVoltages);
     writeVoltages(nodesVoltages);	
     printf("Time = %f for %d iterations\n", time_create, i);
+    
+    //calculate convergence
+    // double converge = convergence(graph, nodesVoltages, source, sink);
+    // printf("Convergence = %lf \n", converge);
     // tear down the graph
     destroyGraph(graph);  
     
