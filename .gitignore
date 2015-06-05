@@ -6,3 +6,5 @@
 *.txt
 *.dat
 *.inp
+*data
+*plots
