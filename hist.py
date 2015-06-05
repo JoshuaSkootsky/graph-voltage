@@ -1,6 +1,8 @@
 #!/bin/python
 # Joshua Skootsky, June 2, 2015
 
+# Usage: python hist.py name-of-output-file (from erdos-renyi graph simulation)
+
 from __future__ import (absolute_import, division, print_function)
 import numpy as np
 import matplotlib.pyplot as plt
