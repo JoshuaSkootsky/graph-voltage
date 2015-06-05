@@ -283,7 +283,7 @@ void printVoltages(struct NodesVoltages* nodesVoltages) {
 	}
 }
 
-void writeVoltages(struct NodesVoltages* nodesVoltages) {
+void writeVoltages(struct NodesVoltages* nodesVoltages, double convergence, int iterations) {
     int nodeNum = 0;
 
     FILE* ff;
@@ -297,6 +297,9 @@ void writeVoltages(struct NodesVoltages* nodesVoltages) {
             printf("\n Failed to write to file \n");
             exit(1); // exit with error
     }
+    // write convergence and iterations to file
+    fprintf(ff, "# convergence = %lf, iterations = %d \n", convergence, iterations);
+
     // loop and write to file
     for (nodeNum = 0; nodeNum < nodesVoltages->n; nodeNum++) {
         double val = nodesVoltages->array[nodeNum].head->voltageOld;
@@ -426,10 +429,16 @@ int main()
 	
     // iterate a certain number of times - 100 chosen for testing purposes
     int i;
-    int max_iter;
+    int max_iter, min_iter;
+    double tol;
     printf("How many iterations for voltage calculation? Integer: \n");
     scanf("%d", &max_iter);
-	for (i = 0; i < max_iter; i++) {
+	printf("How many minimum iterations?\n");
+    scanf("%d", &min_iter);
+    printf("What is the tolerance for convergence?\n");
+    scanf("%lf", &tol);
+    
+    for (i = 0; i < max_iter; i++) {
         // calculate using old values
         calculateAllNewVoltages(graph, nodesVoltages);
         // assign all members of voltage list their new values to old values
@@ -437,20 +446,27 @@ int main()
         // before the loop, assign the sink to 0 again and the source to 1
         nodesVoltages->array[source].head->voltageOld = 1;
         nodesVoltages->array[sink].head->voltageOld = 0; 
+        // break if calculations are below tolerance, and above min_iterations
+        if (calculateConvergence(graph, nodesVoltages, source, sink) < tol
+            && calculateConvergence(graph, nodesVoltages, source, sink) > -tol
+            && i > min_iter) {
+            break;
+        }
     }
 	
 	
 	// end timer
 	finish = clock();
 	time_create = (double) (finish - start) / CLOCKS_PER_SEC; 
-	
-	// printVoltages(nodesVoltages);
-    writeVoltages(nodesVoltages);	
-    printf("Time = %f for %d iterations\n", time_create, i);
-    
+
     double convergence = calculateConvergence(graph, nodesVoltages, source, sink);
     //calculate convergence
     printf("Convergence = %lf \n", convergence);
+	
+    // printVoltages(nodesVoltages);
+    writeVoltages(nodesVoltages, convergence, i);	
+    printf("Time = %f for %d iterations\n", time_create, i);
+    
     // tear down the graph
     destroyGraph(graph);  
     
