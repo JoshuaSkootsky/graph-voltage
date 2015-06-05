@@ -255,7 +255,7 @@ void setNewVoltage(struct Graph* graph, struct NodesVoltages* nodesVoltages, int
 
 void calculateAllNewVoltages(struct Graph* graph, struct NodesVoltages* nodesVoltages) {
 	int i;
-	for (i = 0; i< ((int) graph->V/2 + 1); i++) {
+	for (i = 0; i< graph->V; i++) {
 		setNewVoltage(graph, nodesVoltages, i);
 	}
 }
@@ -300,13 +300,14 @@ void writeVoltages(struct NodesVoltages* nodesVoltages) {
     // loop and write to file
     for (nodeNum = 0; nodeNum < nodesVoltages->n; nodeNum++) {
         double val = nodesVoltages->array[nodeNum].head->voltageOld;
-        fprintf(ff,"%lf\n", val); 
+        fprintf(ff,"%lf  \n", val); 
     }
     printf("Written to file: %s \n", fname);
 }
 
 
-double convergence(struct Graph* graph, struct NodesVoltages* nodesVoltages, int source, int sink) {
+double calculateConvergence(struct Graph* graph, struct NodesVoltages* nodesVoltages,
+                             int source, int sink) {
    
     // check for current in = current out
     // voltage near source should equal voltage near sink, because resistance = 1 
@@ -415,8 +416,8 @@ int main()
     //
     
     // arbitrary sources and sinks written in for testing purposes
-    int sink = 1;
-    int source = 2;
+    int sink = 0;
+    int source = 1;
     nodesVoltages->array[source].head->voltageOld = 1;
     nodesVoltages->array[sink].head->voltageOld = 0;
 	
@@ -436,7 +437,6 @@ int main()
         // before the loop, assign the sink to 0 again and the source to 1
         nodesVoltages->array[source].head->voltageOld = 1;
         nodesVoltages->array[sink].head->voltageOld = 0; 
-
     }
 	
 	
@@ -448,9 +448,9 @@ int main()
     writeVoltages(nodesVoltages);	
     printf("Time = %f for %d iterations\n", time_create, i);
     
+    double convergence = calculateConvergence(graph, nodesVoltages, source, sink);
     //calculate convergence
-    // double converge = convergence(graph, nodesVoltages, source, sink);
-    // printf("Convergence = %lf \n", converge);
+    printf("Convergence = %lf \n", convergence);
     // tear down the graph
     destroyGraph(graph);  
     
