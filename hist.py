@@ -17,11 +17,13 @@ with open(filename, 'r') as f:
 
 voltages = np.genfromtxt(fname=StringIO(data),dtype='float', delimiter='\n', comments='#')
 
-# print(voltages)
+# get comments
+with open(filename, 'r') as f:
+  first_line = f.readline()
 
 # Histogram the voltages
 plt.hist(voltages, bins=100, normed=True)
-plt.title("Voltage Distribution")
-plt.xlabel("Value")
-plt.ylabel("Probability")
+plt.title("Normalized Voltage Distribution of " + filename + "\n" + first_line, fontsize=14, horizontalalignment='center')
+plt.xlabel("Voltage", fontsize=14)
+plt.ylabel("Probability", fontsize=14)
 plt.show()
